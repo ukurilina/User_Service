@@ -50,6 +50,7 @@ public class PaymentCardService {
         return paymentCardRepository.findByUserId(userId);
     }
 
+    @Transactional
     public PaymentCard updateCard(Long id, PaymentCard cardDetails) {
         return paymentCardRepository.findById(id)
                 .map(card -> {
@@ -61,7 +62,13 @@ public class PaymentCardService {
                 .orElseThrow(() -> new RuntimeException("Card is not found"));
     }
 
+    @Transactional
     public void activateOrDeactivateCard(Long id, Boolean active) {
         paymentCardRepository.updateActiveStatus(id, active);
+    }
+
+    @Transactional
+    public void deleteCard(Long id) {
+        paymentCardRepository.deleteById(id);
     }
 }
