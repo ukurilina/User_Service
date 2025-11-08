@@ -64,7 +64,7 @@ public class PaymentCardController {
     }
 
     @PatchMapping("/{id}/active")
-    public void activateDeactivateCard(@PathVariable Long id, @RequestParam Boolean active) {
+    public void activateOrDeactivateCard(@PathVariable Long id, @RequestParam Boolean active) {
         paymentCardService.activateOrDeactivateCard(id, active);
     }
 

@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/active")
-    public void activateDeactivateUser(@PathVariable Long id, @RequestParam Boolean active) {
+    public void activateOrDeactivateUser(@PathVariable Long id, @RequestParam Boolean active) {
         userService.activateOrDeactivateUser(id, active);
     }
 
