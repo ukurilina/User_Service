@@ -2,6 +2,9 @@ package com.example.userService.service;
 
 import com.example.userService.entity.PaymentCard;
 import com.example.userService.entity.User;
+import com.example.userService.exception.CardLimitExceededException;
+import com.example.userService.exception.PaymentCardNotFoundException;
+import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.repository.PaymentCardRepository;
 import com.example.userService.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +27,11 @@ public class PaymentCardService {
 
     public PaymentCard createCard(PaymentCard card, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User is not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         int activeCardCount = paymentCardRepository.countByUserIdAndActiveTrue(userId);
         if (activeCardCount >= 5) {
-            throw new RuntimeException("User cannot have more than 5 active cards");
+            throw new CardLimitExceededException(userId);
         }
 
         card.setUser(user);
@@ -36,8 +39,10 @@ public class PaymentCardService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<PaymentCard> getCardById(Long id) {
-        return paymentCardRepository.findById(id);
+    public PaymentCard getCardById(Long id) {
+
+        return paymentCardRepository.findById(id)
+                .orElseThrow(() -> new PaymentCardNotFoundException(id));
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +64,7 @@ public class PaymentCardService {
                     card.setExpirationDate(cardDetails.getExpirationDate());
                     return paymentCardRepository.save(card);
                 })
-                .orElseThrow(() -> new RuntimeException("Card is not found"));
+                .orElseThrow(() -> new PaymentCardNotFoundException(id));
     }
 
     @Transactional

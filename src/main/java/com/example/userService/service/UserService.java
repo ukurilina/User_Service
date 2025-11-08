@@ -1,6 +1,7 @@
 package com.example.userService.service;
 
 import com.example.userService.entity.User;
+import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.repository.UserRepository;
 import com.example.userService.specification.UserSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Transactional(readOnly = true)
@@ -32,6 +34,7 @@ public class UserService {
         Specification<User> spec = Specification.where(UserSpecifications.hasFirstName(firstName)).and(UserSpecifications.hasSurname(surname));
         return userRepository.findAll(spec, pageable);
     }
+
     @Transactional
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id)
@@ -42,7 +45,7 @@ public class UserService {
                     user.setEmail(userDetails.getEmail());
                     return userRepository.save(user);
                 })
-                .orElseThrow(() -> new RuntimeException("User is not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
     @Transactional
     public void activateOrDeactivateUser(Long id, Boolean active) {
