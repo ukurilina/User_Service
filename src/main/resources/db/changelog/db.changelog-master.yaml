@@ -72,17 +72,6 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_payment_cards_user_id
 
-  - changeSet:
-      id: 2
-      author: ulyana
-      changes:
-        - createIndex:
-            tableName: users
-            indexName: idx_users_email
-            columns:
-              - column:
-                  name: email
-
         - createIndex:
             tableName: payment_cards
             indexName: idx_payment_cards_user_id
@@ -90,4 +79,39 @@ databaseChangeLog:
               - column:
                   name: user_id
 
+        - createIndex:
+            tableName: users
+            indexName: idx_users_name_surname
+            columns:
+              - column:
+                  name: name
+              - column:
+                  name: surname
 
+        - createIndex:
+            tableName: users
+            indexName: idx_users_active
+            columns:
+              - column:
+                  name: active
+
+        - createIndex:
+            tableName: payment_cards
+            indexName: idx_payment_cards_active
+            columns:
+              - column:
+                  name: active
+
+        - createIndex:
+            tableName: payment_cards
+            indexName: idx_payment_cards_holder
+            columns:
+              - column:
+                  name: holder
+
+        - createIndex:
+            tableName: payment_cards
+            indexName: idx_payment_cards_expiration
+            columns:
+              - column:
+                  name: expiration_date
