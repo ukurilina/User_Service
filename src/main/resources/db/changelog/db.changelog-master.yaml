@@ -73,45 +73,21 @@ databaseChangeLog:
             constraintName: fk_payment_cards_user_id
 
         - createIndex:
-            tableName: payment_cards
-            indexName: idx_payment_cards_user_id
-            columns:
-              - column:
-                  name: user_id
-
-        - createIndex:
             tableName: users
             indexName: idx_users_name_surname
             columns:
-              - column:
-                  name: name
-              - column:
-                  name: surname
-
-        - createIndex:
-            tableName: users
-            indexName: idx_users_active
-            columns:
-              - column:
-                  name: active
+              - column: { name : name }
+              - column: { name:  surname }
 
         - createIndex:
             tableName: payment_cards
-            indexName: idx_payment_cards_active
+            indexName: idx_payment_cards_user_id
             columns:
-              - column:
-                  name: active
+              - column: { name: user_id }
 
         - createIndex:
             tableName: payment_cards
-            indexName: idx_payment_cards_holder
+            indexName: idx_payment_cards_user_active
             columns:
-              - column:
-                  name: holder
-
-        - createIndex:
-            tableName: payment_cards
-            indexName: idx_payment_cards_expiration
-            columns:
-              - column:
-                  name: expiration_date
+              - column: { name: user_id }
+              - column: { name: active }
