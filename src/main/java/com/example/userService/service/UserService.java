@@ -30,7 +30,6 @@ public class UserService {
         Specification<User> spec = Specification.where(UserSpecifications.hasFirstName(firstName)).and(UserSpecifications.hasSurname(surname));
         return userRepository.findAll(spec, pageable);
     }
-
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -42,11 +41,9 @@ public class UserService {
                 })
                 .orElseThrow(() -> new RuntimeException("User is not found"));
     }
-
     public void activateOrDeactivateUser(Long id, Boolean active) {
         userRepository.updateActiveStatus(id, active);
     }
-
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

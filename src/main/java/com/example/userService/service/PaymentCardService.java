@@ -55,11 +55,9 @@ public class PaymentCardService {
                 })
                 .orElseThrow(() -> new RuntimeException("Card is not found"));
     }
-
     public void activateOrDeactivateCard(Long id, Boolean active) {
         paymentCardRepository.updateActiveStatus(id, active);
     }
-
     public void deleteCard(Long id) {
         paymentCardRepository.deleteById(id);
     }
