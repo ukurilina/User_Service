@@ -3,23 +3,21 @@ package com.example.userService.controller;
 import com.example.userService.dto.PaymentCardDTO;
 import com.example.userService.mapper.PaymentCardMapper;
 import com.example.userService.service.PaymentCardService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payment_cards")
+@RequiredArgsConstructor
 public class PaymentCardController {
 
-    @Autowired
     private PaymentCardService paymentCardService;
-
-    @Autowired
     private PaymentCardMapper paymentCardMapper;
 
     @PostMapping("/users/{userId}")

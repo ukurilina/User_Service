@@ -3,20 +3,18 @@ package com.example.userService.controller;
 import com.example.userService.dto.UserDTO;
 import com.example.userService.mapper.UserMapper;
 import com.example.userService.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private UserMapper userMapper;
 
     @PostMapping
