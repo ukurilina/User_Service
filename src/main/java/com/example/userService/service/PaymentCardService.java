@@ -45,9 +45,10 @@ public class PaymentCardService {
         return paymentCardMapper.toDTO(savedCard);
     }
 
-    public Optional<PaymentCardDTO> getCardById(Long id) {
-        return paymentCardRepository.findById(id)
-                .map(paymentCardMapper::toDTO);
+    public PaymentCardDTO getCardById(Long id) {
+        PaymentCard card = paymentCardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return paymentCardMapper.toDTO(card);
     }
 
     public Page<PaymentCardDTO> getAllCards(Pageable pageable) {
