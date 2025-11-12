@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/payment_cards")
 public class PaymentCardController {
-
     private final PaymentCardService paymentCardService;
     private final PaymentCardMapper paymentCardMapper;
 
@@ -22,7 +21,6 @@ public class PaymentCardController {
         this.paymentCardService = paymentCardService;
         this.paymentCardMapper = paymentCardMapper;
     }
-
 
     @PostMapping("/users/{userId}")
     public PaymentCardDTO createCard(

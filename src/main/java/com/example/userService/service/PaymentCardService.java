@@ -10,16 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class PaymentCardService {
+    private final PaymentCardRepository paymentCardRepository;
+    private final UserRepository userRepository;
 
-    private PaymentCardRepository paymentCardRepository;
-    private UserRepository userRepository;
-
+    public PaymentCardService(PaymentCardRepository paymentCardRepository,
+                              UserRepository userRepository) {
+        this.paymentCardRepository = paymentCardRepository;
+        this.userRepository = userRepository;
+    }
     public PaymentCard createCard(PaymentCard card, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User is not found"));
