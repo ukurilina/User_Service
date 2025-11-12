@@ -32,9 +32,10 @@ public class UserService {
         return userMapper.toDTO(savedUser);
     }
 
-    public Optional<UserDTO> getUserById(Long id) {
-        return userRepository.findById(id)
-                .map(userMapper::toDTO);
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return userMapper.toDTO(user);
     }
 
     public Page<UserDTO> getAllUsers(String firstName, String surname, Pageable pageable) {
@@ -46,29 +47,29 @@ public class UserService {
 
     @Transactional
     public UserDTO updateUser(Long id, UserDTO userDTO) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(userDTO.getName());
-                    user.setSurname(userDTO.getSurname());
-                    user.setBirthDate(userDTO.getBirthDate());
-                    user.setEmail(userDTO.getEmail());
-                    User updatedUser = userRepository.save(user);
-                    return userMapper.toDTO(updatedUser);
-                })
-                .orElseThrow(() -> new RuntimeException("User is not found"));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setName(userDTO.getName());
+        user.setSurname(userDTO.getSurname());
+        user.setBirthDate(userDTO.getBirthDate());
+        user.setEmail(userDTO.getEmail());
+
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDTO(updatedUser);
     }
 
     @Transactional
     public void activateOrDeactivateUser(Long id, Boolean active) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         userRepository.updateActiveStatus(id, active);
     }
 
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         userRepository.delete(user);
     }
 }

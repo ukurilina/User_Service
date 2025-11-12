@@ -2,7 +2,6 @@ package com.example.userService.controller;
 
 import com.example.userService.dto.UserDTO;
 import com.example.userService.service.UserService;
-import com.example.userService.exception.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +24,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        return userService.getUserById(id);
     }
 
     @GetMapping
