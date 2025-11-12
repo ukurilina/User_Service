@@ -2,7 +2,6 @@ package com.example.userService.controller;
 
 import com.example.userService.dto.PaymentCardDTO;
 import com.example.userService.service.PaymentCardService;
-import com.example.userService.exception.PaymentCardNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +29,7 @@ public class PaymentCardController {
 
     @GetMapping("/{id}")
     public PaymentCardDTO getCardById(@PathVariable Long id) {
-        return paymentCardService.getCardById(id)
-                .orElseThrow(() -> new PaymentCardNotFoundException(id));
+        return paymentCardService.getCardById(id);
     }
 
     @GetMapping
