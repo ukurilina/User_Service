@@ -7,18 +7,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payment_cards")
-@RequiredArgsConstructor
 public class PaymentCardController {
 
-    private PaymentCardService paymentCardService;
-    private PaymentCardMapper paymentCardMapper;
+    private final PaymentCardService paymentCardService;
+    private final PaymentCardMapper paymentCardMapper;
+
+    public PaymentCardController(PaymentCardService paymentCardService, PaymentCardMapper paymentCardMapper) {
+        this.paymentCardService = paymentCardService;
+        this.paymentCardMapper = paymentCardMapper;
+    }
+
 
     @PostMapping("/users/{userId}")
     public PaymentCardDTO createCard(
