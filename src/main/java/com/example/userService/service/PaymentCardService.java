@@ -2,6 +2,7 @@ package com.example.userService.service;
 
 import com.example.userService.entity.PaymentCard;
 import com.example.userService.entity.User;
+import com.example.userService.exception.PaymentCardNotFoundException;
 import com.example.userService.repository.PaymentCardRepository;
 import com.example.userService.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -58,9 +59,13 @@ public class PaymentCardService {
                 .orElseThrow(() -> new RuntimeException("Card is not found"));
     }
     public void activateOrDeactivateCard(Long id, Boolean active) {
+        PaymentCard card = paymentCardRepository.findById(id)
+                .orElseThrow(() -> new PaymentCardNotFoundException(id));
         paymentCardRepository.updateActiveStatus(id, active);
     }
     public void deleteCard(Long id) {
-        paymentCardRepository.deleteById(id);
+        PaymentCard card = paymentCardRepository.findById(id)
+                .orElseThrow(() -> new PaymentCardNotFoundException(id));
+        paymentCardRepository.delete(card);
     }
 }

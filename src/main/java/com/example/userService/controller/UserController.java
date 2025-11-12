@@ -3,10 +3,12 @@ package com.example.userService.controller;
 import com.example.userService.dto.UserDTO;
 import com.example.userService.mapper.UserMapper;
 import com.example.userService.service.UserService;
+import com.example.userService.exception.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,7 +31,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable Long id) {
-        var user = userService.getUserById(id).orElse(null);
+        var user = userService.getUserById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toDTO(user);
     }
 
@@ -58,7 +61,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

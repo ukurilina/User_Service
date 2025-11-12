@@ -1,6 +1,7 @@
 package com.example.userService.service;
 
 import com.example.userService.entity.User;
+import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.repository.UserRepository;
 import com.example.userService.specification.UserSpecifications;
 import org.springframework.data.domain.Page;
@@ -44,9 +45,13 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User is not found"));
     }
     public void activateOrDeactivateUser(Long id, Boolean active) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.updateActiveStatus(id, active);
     }
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        userRepository.delete(user);
     }
 }

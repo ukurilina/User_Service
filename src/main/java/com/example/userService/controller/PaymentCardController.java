@@ -1,6 +1,7 @@
 package com.example.userService.controller;
 
 import com.example.userService.dto.PaymentCardDTO;
+import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.mapper.PaymentCardMapper;
 import com.example.userService.service.PaymentCardService;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,8 @@ public class PaymentCardController {
 
     @GetMapping("/{id}")
     public PaymentCardDTO getCardById(@PathVariable Long id) {
-        var card = paymentCardService.getCardById(id).orElse(null);
+        var card = paymentCardService.getCardById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
         return paymentCardMapper.toDTO(card);
     }
 
