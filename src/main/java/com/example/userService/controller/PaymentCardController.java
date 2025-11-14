@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -20,43 +21,52 @@ public class PaymentCardController {
     }
 
     @PostMapping("/users/{userId}")
-    public PaymentCardDTO createCard(
+    public ResponseEntity<PaymentCardDTO> createCard(
             @RequestBody PaymentCardDTO paymentCardDTO,
             @PathVariable Long userId) {
 
-        return paymentCardService.createCard(paymentCardDTO, userId);
+        PaymentCardDTO createdCard = paymentCardService.createCard(paymentCardDTO, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCard); // 201 Created
     }
 
     @GetMapping("/{id}")
-    public PaymentCardDTO getCardById(@PathVariable Long id) {
-        return paymentCardService.getCardById(id);
+    public ResponseEntity<PaymentCardDTO> getCardById(@PathVariable Long id) {
+        PaymentCardDTO card = paymentCardService.getCardById(id);
+        return ResponseEntity.ok(card);
     }
 
     @GetMapping
-    public Page<PaymentCardDTO> getAllCards(
+    public ResponseEntity<Page<PaymentCardDTO>> getAllCards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return paymentCardService.getAllCards(pageable);
+        Page<PaymentCardDTO> cards = paymentCardService.getAllCards(pageable);
+        return ResponseEntity.ok(cards);
     }
 
     @GetMapping("/users/{userId}")
-    public List<PaymentCardDTO> getCardsByUserId(@PathVariable Long userId) {
-        return paymentCardService.getCardsByUserId(userId);
+    public ResponseEntity<List<PaymentCardDTO>> getCardsByUserId(@PathVariable Long userId) {
+        List<PaymentCardDTO> cards = paymentCardService.getCardsByUserId(userId);
+        return ResponseEntity.ok(cards);
     }
 
     @PutMapping("/{id}")
-    public PaymentCardDTO updateCard(
+    public ResponseEntity<PaymentCardDTO> updateCard(
             @PathVariable Long id,
             @RequestBody PaymentCardDTO paymentCardDTO) {
 
-        return paymentCardService.updateCard(id, paymentCardDTO);
+        PaymentCardDTO updatedCard = paymentCardService.updateCard(id, paymentCardDTO);
+        return ResponseEntity.ok(updatedCard);
     }
 
     @PatchMapping("/{id}/active")
-    public void activateOrDeactivateCard(@PathVariable Long id, @RequestParam Boolean active) {
-        paymentCardService.activateOrDeactivateCard(id, active);
+    public ResponseEntity<PaymentCardDTO> activateOrDeactivateCard(
+            @PathVariable Long id,
+            @RequestParam Boolean active) {
+
+        PaymentCardDTO updatedCard = paymentCardService.activateOrDeactivateCard(id, active);
+        return ResponseEntity.ok(updatedCard);
     }
 
     @DeleteMapping("/{id}")
