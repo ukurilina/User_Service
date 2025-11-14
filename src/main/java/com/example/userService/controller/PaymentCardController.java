@@ -1,26 +1,22 @@
 package com.example.userService.controller;
 
 import com.example.userService.dto.PaymentCardDTO;
-import com.example.userService.exception.UserNotFoundException;
-import com.example.userService.mapper.PaymentCardMapper;
 import com.example.userService.service.PaymentCardService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/payment_cards")
 public class PaymentCardController {
     private final PaymentCardService paymentCardService;
-    private final PaymentCardMapper paymentCardMapper;
 
-    public PaymentCardController(PaymentCardService paymentCardService, PaymentCardMapper paymentCardMapper) {
+    public PaymentCardController(PaymentCardService paymentCardService) {
         this.paymentCardService = paymentCardService;
-        this.paymentCardMapper = paymentCardMapper;
     }
 
     @PostMapping("/users/{userId}")
@@ -28,31 +24,26 @@ public class PaymentCardController {
             @RequestBody PaymentCardDTO paymentCardDTO,
             @PathVariable Long userId) {
 
-        var card = paymentCardMapper.toEntity(paymentCardDTO);
-        var createdCard = paymentCardService.createCard(card, userId);
-        return paymentCardMapper.toDTO(createdCard);
+        return paymentCardService.createCard(paymentCardDTO, userId);
     }
 
     @GetMapping("/{id}")
     public PaymentCardDTO getCardById(@PathVariable Long id) {
-        var card = paymentCardService.getCardById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-        return paymentCardMapper.toDTO(card);
+        return paymentCardService.getCardById(id);
     }
 
     @GetMapping
-    public Page<PaymentCardDTO> getAllCards(@RequestParam int page, @RequestParam int size) {
+    public Page<PaymentCardDTO> getAllCards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
-        var cardsPage = paymentCardService.getAllCards(pageable);
-        return cardsPage.map(paymentCardMapper::toDTO);
+        return paymentCardService.getAllCards(pageable);
     }
 
     @GetMapping("/users/{userId}")
     public List<PaymentCardDTO> getCardsByUserId(@PathVariable Long userId) {
-        var cards = paymentCardService.getCardsByUserId(userId);
-        return cards.stream()
-                .map(paymentCardMapper::toDTO)
-                .collect(Collectors.toList());
+        return paymentCardService.getCardsByUserId(userId);
     }
 
     @PutMapping("/{id}")
@@ -60,9 +51,7 @@ public class PaymentCardController {
             @PathVariable Long id,
             @RequestBody PaymentCardDTO paymentCardDTO) {
 
-        var card = paymentCardMapper.toEntity(paymentCardDTO);
-        var updatedCard = paymentCardService.updateCard(id, card);
-        return paymentCardMapper.toDTO(updatedCard);
+        return paymentCardService.updateCard(id, paymentCardDTO);
     }
 
     @PatchMapping("/{id}/active")
@@ -71,7 +60,8 @@ public class PaymentCardController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCard(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
         paymentCardService.deleteCard(id);
+        return ResponseEntity.noContent().build();
     }
 }
