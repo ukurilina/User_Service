@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PaymentCardService {
@@ -32,11 +31,11 @@ public class PaymentCardService {
     @Transactional
     public PaymentCardDTO createCard(PaymentCardDTO cardDTO, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User is not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         int activeCardCount = paymentCardRepository.countByUserIdAndActiveTrue(userId);
         if (activeCardCount >= 5) {
-            throw new RuntimeException("User cannot have more than 5 active cards");
+            throw new RuntimeException("User can't have more than 5 cards");
         }
 
         PaymentCard card = paymentCardMapper.toEntity(cardDTO);
@@ -45,17 +44,20 @@ public class PaymentCardService {
         return paymentCardMapper.toDTO(savedCard);
     }
 
+    @Transactional(readOnly = true)
     public PaymentCardDTO getCardById(Long id) {
         PaymentCard card = paymentCardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Card not found with id: " + id));
         return paymentCardMapper.toDTO(card);
     }
 
+    @Transactional(readOnly = true)
     public Page<PaymentCardDTO> getAllCards(Pageable pageable) {
         return paymentCardRepository.findAllCards(pageable)
                 .map(paymentCardMapper::toDTO);
     }
 
+    @Transactional
     public List<PaymentCardDTO> getCardsByUserId(Long userId) {
         List<PaymentCard> cards = paymentCardRepository.findByUserId(userId);
         return cards.stream()
@@ -73,20 +75,20 @@ public class PaymentCardService {
                     PaymentCard updatedCard = paymentCardRepository.save(card);
                     return paymentCardMapper.toDTO(updatedCard);
                 })
-                .orElseThrow(() -> new RuntimeException("Card is not found"));
+                .orElseThrow(() -> new RuntimeException("Card not found with id: " + id));
     }
 
     @Transactional
     public void activateOrDeactivateCard(Long id, Boolean active) {
         PaymentCard card = paymentCardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+                .orElseThrow(() -> new RuntimeException("Card not found with id: " + id));
         paymentCardRepository.updateActiveStatus(id, active);
     }
 
     @Transactional
     public void deleteCard(Long id) {
         PaymentCard card = paymentCardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+                .orElseThrow(() -> new RuntimeException("Card not found with id: " + id));
         paymentCardRepository.delete(card);
     }
 }

@@ -11,8 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 public class UserService {
 
@@ -32,12 +30,14 @@ public class UserService {
         return userMapper.toDTO(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         return userMapper.toDTO(user);
     }
 
+    @Transactional(readOnly = true)
     public Page<UserDTO> getAllUsers(String firstName, String surname, Pageable pageable) {
         Specification<User> spec = Specification.where(UserSpecifications.hasFirstName(firstName))
                 .and(UserSpecifications.hasSurname(surname));
