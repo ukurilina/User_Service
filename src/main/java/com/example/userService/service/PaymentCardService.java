@@ -79,10 +79,14 @@ public class PaymentCardService {
     }
 
     @Transactional
-    public void activateOrDeactivateCard(Long id, Boolean active) {
+    public PaymentCardDTO activateOrDeactivateCard(Long id, Boolean active) {
         PaymentCard card = paymentCardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card not found with id: " + id));
+
         paymentCardRepository.updateActiveStatus(id, active);
+
+        card.setActive(active);
+        return paymentCardMapper.toDTO(card);
     }
 
     @Transactional
