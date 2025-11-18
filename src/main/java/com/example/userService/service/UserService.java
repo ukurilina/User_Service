@@ -8,6 +8,9 @@ import com.example.userService.specification.UserSpecifications;
 import com.example.userService.exception.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @CacheEvict(value = {"userCache", "userWithCardsCache"}, allEntries = true)
     @Transactional
     public UserDto createUser(UserDto userDTO) {
         User user = userMapper.toEntity(userDTO);
@@ -28,6 +32,7 @@ public class UserService {
         return userMapper.toDTO(savedUser);
     }
 
+    @Cacheable(value = "userCache", key = "#id")
     @Transactional(readOnly = true)
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -35,6 +40,7 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
+    @Cacheable(value = "userCache")
     @Transactional(readOnly = true)
     public Page<UserDto> getAllUsers(String firstName, String surname, Pageable pageable) {
         Specification<User> spec = Specification.where(UserSpecifications.hasFirstName(firstName))
@@ -43,6 +49,11 @@ public class UserService {
         return users.map(userMapper::toDTO);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "cardCache", key = "#id"),
+            @CacheEvict(value = "userCardsCache", key = "#cardDetails.user.id"),
+            @CacheEvict(value = "userWithCardsCache", key = "#cardDetails.user.id")
+    })
     @Transactional
     public UserDto updateUser(Long id, UserDto userDTO) {
         User user = userRepository.findById(id)
@@ -57,6 +68,10 @@ public class UserService {
         return userMapper.toDTO(updatedUser);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "userCache", key = "#id"),
+            @CacheEvict(value = "userWithCardsCache", key = "#id")
+    })
     @Transactional
     public void activateOrDeactivateUser(Long id, Boolean active) {
         User user = userRepository.findById(id)
@@ -64,6 +79,10 @@ public class UserService {
         userRepository.updateActiveStatus(id, active);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "userCache", key = "#id"),
+            @CacheEvict(value = "userWithCardsCache", key = "#id")
+    })
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
