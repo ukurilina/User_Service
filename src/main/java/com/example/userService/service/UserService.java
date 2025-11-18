@@ -1,8 +1,7 @@
 package com.example.userService.service;
 
-import com.example.userService.dto.UserDTO;
+import com.example.userService.dto.UserDto;
 import com.example.userService.entity.User;
-import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.mapper.UserMapper;
 import com.example.userService.repository.UserRepository;
 import com.example.userService.specification.UserSpecifications;
@@ -11,19 +10,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
     @Transactional
-    public UserDTO createUser(UserDTO userDTO) {
+    public UserDto createUser(UserDto userDTO) {
         User user = userMapper.toEntity(userDTO);
         user.setActive(true);
         User savedUser = userRepository.save(user);
@@ -31,14 +28,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDTO getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         return userMapper.toDTO(user);
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> getAllUsers(String firstName, String surname, Pageable pageable) {
+    public Page<UserDto> getAllUsers(String firstName, String surname, Pageable pageable) {
         Specification<User> spec = Specification.where(UserSpecifications.hasFirstName(firstName))
                 .and(UserSpecifications.hasSurname(surname));
         Page<User> users = userRepository.findAll(spec, pageable);
@@ -46,9 +43,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
+    public UserDto updateUser(Long id, UserDto userDTO) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         user.setName(userDTO.getName());
         user.setSurname(userDTO.getSurname());
@@ -62,14 +59,14 @@ public class UserService {
     @Transactional
     public void activateOrDeactivateUser(Long id, Boolean active) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         userRepository.updateActiveStatus(id, active);
     }
 
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         userRepository.delete(user);
     }
 }
