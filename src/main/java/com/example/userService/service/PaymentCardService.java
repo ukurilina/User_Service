@@ -1,25 +1,23 @@
 package com.example.userService.service;
 
-import com.example.userService.dto.PaymentCardDTO;
+import com.example.userService.dto.PaymentCardDto;
 import com.example.userService.entity.PaymentCard;
 import com.example.userService.entity.User;
-import com.example.userService.exception.CardLimitExceededException;
-import com.example.userService.exception.PaymentCardNotFoundException;
-import com.example.userService.exception.UserNotFoundException;
 import com.example.userService.mapper.PaymentCardMapper;
 import com.example.userService.repository.PaymentCardRepository;
 import com.example.userService.repository.UserRepository;
+import com.example.userService.exception.UserNotFoundException;
+import com.example.userService.exception.PaymentCardNotFoundException;
+import com.example.userService.exception.CardLimitExceededException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class PaymentCardService {
 
@@ -27,17 +25,8 @@ public class PaymentCardService {
     private final UserRepository userRepository;
     private final PaymentCardMapper paymentCardMapper;
 
-    public PaymentCardService(PaymentCardRepository paymentCardRepository,
-                              UserRepository userRepository,
-                              PaymentCardMapper paymentCardMapper) {
-        this.paymentCardRepository = paymentCardRepository;
-        this.userRepository = userRepository;
-        this.paymentCardMapper = paymentCardMapper;
-    }
-
-    @CacheEvict(value = {"userCardsCache"}, key = "#userId")
     @Transactional
-    public PaymentCardDTO createCard(PaymentCardDTO cardDTO, Long userId) {
+    public PaymentCardDto createCard(PaymentCardDto cardDTO, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -52,33 +41,29 @@ public class PaymentCardService {
         return paymentCardMapper.toDTO(savedCard);
     }
 
-    @Cacheable(value = "cards", key = "#id")
     @Transactional(readOnly = true)
-    public PaymentCardDTO getCardById(Long id) {
+    public PaymentCardDto getCardById(Long id) {
         PaymentCard card = paymentCardRepository.findById(id)
                 .orElseThrow(() -> new PaymentCardNotFoundException(id));
         return paymentCardMapper.toDTO(card);
     }
 
-    @Cacheable(value = "cards")
     @Transactional(readOnly = true)
-    public Page<PaymentCardDTO> getAllCards(Pageable pageable) {
+    public Page<PaymentCardDto> getAllCards(Pageable pageable) {
         return paymentCardRepository.findAllCards(pageable)
                 .map(paymentCardMapper::toDTO);
     }
 
-    @CachePut(value = "cards", key = "#userId")
     @Transactional
-    public List<PaymentCardDTO> getCardsByUserId(Long userId) {
+    public List<PaymentCardDto> getCardsByUserId(Long userId) {
         List<PaymentCard> cards = paymentCardRepository.findByUserId(userId);
         return cards.stream()
                 .map(paymentCardMapper::toDTO)
                 .toList();
     }
 
-    @CachePut(value = "cards", key = "#id")
     @Transactional
-    public PaymentCardDTO updateCard(Long id, PaymentCardDTO cardDTO) {
+    public PaymentCardDto updateCard(Long id, PaymentCardDto cardDTO) {
         return paymentCardRepository.findById(id)
                 .map(card -> {
                     card.setNumber(cardDTO.getNumber());
@@ -90,18 +75,17 @@ public class PaymentCardService {
                 .orElseThrow(() -> new PaymentCardNotFoundException(id));
     }
 
-    @CachePut(value = "cards", key = "#id")
     @Transactional
-    public void activateOrDeactivateCard(Long id, Boolean active) {
+    public PaymentCardDto activateOrDeactivateCard(Long id, Boolean active) {
         PaymentCard card = paymentCardRepository.findById(id)
                 .orElseThrow(() -> new PaymentCardNotFoundException(id));
+
         paymentCardRepository.updateActiveStatus(id, active);
+
+        card.setActive(active);
+        return paymentCardMapper.toDTO(card);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "cards", key = "#id"),
-            @CacheEvict(value = "userCardsCache", key = "#userId")
-    })
     @Transactional
     public void deleteCard(Long id) {
         PaymentCard card = paymentCardRepository.findById(id)
