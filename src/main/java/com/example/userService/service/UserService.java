@@ -5,6 +5,7 @@ import com.example.userService.entity.User;
 import com.example.userService.mapper.UserMapper;
 import com.example.userService.repository.UserRepository;
 import com.example.userService.specification.UserSpecifications;
+import com.example.userService.exception.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,7 +31,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toDTO(user);
     }
 
@@ -45,7 +46,7 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Long id, UserDto userDTO) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         user.setName(userDTO.getName());
         user.setSurname(userDTO.getSurname());
@@ -59,14 +60,14 @@ public class UserService {
     @Transactional
     public void activateOrDeactivateUser(Long id, Boolean active) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.updateActiveStatus(id, active);
     }
 
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.delete(user);
     }
 }

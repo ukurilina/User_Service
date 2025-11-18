@@ -50,7 +50,6 @@ public class PaymentCardController {
         List<PaymentCardDto> cards = paymentCardService.getCardsByUserId(userId);
         return ResponseEntity.ok(cards);
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<PaymentCardDto> updateCard(
             @PathVariable Long id,
